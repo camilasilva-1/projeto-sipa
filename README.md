@@ -1,55 +1,212 @@
-🚨 SIPA — Sistema de Inteligência em Prescrições Adversas
+# 🚨 SIPA — Sistema de Inteligência em Prescrições Adversas
 
-API RESTful desenvolvida em Laravel, voltada para a segurança farmacêutica no varejo e em clínicas de especialidades. O objetivo central é mitigar o erro humano na prescrição e venda de medicamentos para pacientes com alergias pré-existentes, funcionando como uma camada de inteligência no backend.
+API REST desenvolvida em **Laravel**, voltada ao apoio à segurança na prescrição e dispensação de medicamentos.
 
-Diferente de sistemas hospitalares fechados, o SIPA atua como suporte à decisão clínica, realizando o cruzamento automatizado entre a composição química dos medicamentos (por famílias de substâncias) e o histórico de alergias do paciente — priorizando a segurança de pacientes atendidos pela rede pública (SUS), sem interromper o fluxo de atendimento com bloqueios rígidos.
+O SIPA tem como proposta identificar possíveis riscos relacionados a **alergias pré-existentes**, realizando o cruzamento entre informações de pacientes, alergias e medicamentos para apoiar a tomada de decisão do profissional responsável.
 
-👥 Equipe
+O projeto foi desenvolvido com foco não apenas na implementação da API, mas também na **modelagem de dados, definição de regras de negócio, organização dos requisitos e estruturação do sistema**.
 
-Camila Conceição
+---
 
-Marcos Vinicius
+## 🎯 Objetivo
 
-Giovana Gomes
+Reduzir riscos relacionados à prescrição de medicamentos incompatíveis com alergias registradas, utilizando uma solução que organize as informações e auxilie o profissional durante o processo de atendimento.
 
-Mayane Lins
+---
 
-💡 O problema
+## 💡 Problema
 
-Erros de prescrição por alergias não verificadas ainda são uma causa evitável de dano ao paciente. O SIPA usa tecnologia para atacar esse ponto específico, sem exigir sistemas hospitalares complexos ou fechados.
+Erros relacionados à falta de verificação de alergias podem representar riscos evitáveis ao paciente.
 
-⚙️ Como funciona
-Requisição: o backend recebe um JSON com ID_Paciente e ID_Medicamento.
-Busca de dados: consulta a lista de substâncias alérgicas do paciente e a composição química do medicamento.
-Algoritmo de comparação: cruza os princípios ativos e códigos ATC (classificação química), identificando correlações mesmo quando os nomes não são idênticos (ex: alergia a Penicilina → alerta por semelhança com a classe dos Betalactâmicos).
-Validação de regra de negócio: se houver risco, gera um alerta crítico e aguarda a ciência do profissional (CRM/CRF) para prosseguir.
-Auditoria: registra a tentativa, quem consultou e por que o alerta foi gerado, mascarando dados sensíveis conforme a LGPD.
+O SIPA busca atuar nesse ponto por meio do cruzamento das informações cadastradas no sistema, permitindo identificar situações que necessitam de atenção antes da continuidade do atendimento.
 
-📐 Regras de negócio
-Regra	Descrição
-RN01	Impede a liberação de medicamentos cujo princípio ativo coincida com uma alergia registrada
-RN02	Valida também por código ATC — mesma família química do alérgeno dispara alerta por semelhança farmacológica
-RN03	Toda operação em alerta crítico exige identificação do profissional e justificativa técnica
-RN04	Privacidade: o sistema responde apenas "Seguro" ou "Risco Detectado", sem expor o histórico completo do paciente
-RN05	Toda decisão pós-alerta é vinculada ao profissional que autorizou a continuidade
+---
 
-🗃️ Modelagem de dados
-Paciente — dados de identificação e vínculo com condições de saúde
-Profissional — médico ou farmacêutico responsável (CRM/CRF)
-Alergias — catálogo de substâncias alérgenas e nível de intensidade (leve, moderada, grave)
-Paciente x Alergias — histórico clínico (tabela de relacionamento)
-Medicamentos — nome comercial, princípio ativo, código ATC, fabricante, dosagem
+## ⚙️ Como funciona
 
-🔒 Privacidade e conformidade (LGPD)
-Sessões inativas são encerradas automaticamente.
-O profissional insere o CPF apenas para vincular a consulta; o sistema processa tudo "no escuro".
-A resposta ao ponto de venda/atendimento é binária: Seguro ou Risco Detectado — nunca a lista completa de condições do paciente.
+O fluxo principal do sistema é baseado no relacionamento entre **Paciente, Alergia, Medicamento e Profissional**.
 
-🔮 Próximos passos
-Integração com bases externas (ex: ANVISA) para atualização automática de princípios ativos e códigos ATC.
-Suporte à decisão clínica: sugestão de medicamentos de classes terapêuticas alternativas quando um risco é detectado.
+```text
+Paciente
+   ↓
+Alergias registradas
+   ↓
+Medicamento
+   ↓
+Análise das informações
+   ↓
+Regras de negócio
+   ↓
+Resultado da verificação
+```
 
-🛠️ Tecnologias
-PHP / Laravel
-MySQL
-API RESTful
+A API recebe as requisições, processa as informações através das camadas da aplicação e consulta o banco de dados para realizar as operações necessárias.
+
+---
+
+## 📌 Principais funcionalidades
+
+* Cadastro, consulta, atualização e exclusão de registros;
+* Gerenciamento de pacientes;
+* Gerenciamento de profissionais;
+* Cadastro e consulta de medicamentos;
+* Cadastro e consulta de alergias;
+* Classificação da intensidade das alergias;
+* Consulta de informações específicas através da API;
+* Validação de dados;
+* Aplicação de regras de negócio;
+* Integração entre API e banco de dados relacional.
+
+---
+
+## 📐 Regras de negócio
+
+Entre as regras definidas para o sistema estão:
+
+| Código | Regra                                                                                            |
+| ------ | ------------------------------------------------------------------------------------------------ |
+| RN01   | Dados obrigatórios devem ser informados para realização do cadastro.                             |
+| RN02   | Alergias devem possuir uma classificação de intensidade.                                         |
+| RN03   | A intensidade da alergia é classificada como leve, moderada ou grave.                            |
+| RN04   | Os registros devem respeitar os relacionamentos definidos no banco de dados.                     |
+| RN05   | As operações realizadas pela API devem seguir as regras de validação estabelecidas pelo sistema. |
+
+---
+
+## 🗃️ Modelagem de dados
+
+O banco de dados foi estruturado para representar as principais entidades do sistema:
+
+* **Paciente**
+* **Profissional**
+* **Medicamento**
+* **Alergia**
+* **Verificação**
+
+Os relacionamentos entre essas entidades são representados por **chaves primárias e estrangeiras**, buscando manter a organização e a integridade dos dados.
+
+A modelagem e as consultas SQL foram exploradas utilizando **MySQL e DBeaver**.
+
+---
+
+## 🏗️ Arquitetura
+
+A aplicação utiliza uma organização em camadas:
+
+```text
+Requisição HTTP
+      ↓
+    Route
+      ↓
+  Controller
+      ↓
+    Service
+      ↓
+     Model
+      ↓
+    MySQL
+```
+
+### Controller
+
+Responsável por receber as requisições e direcionar as operações.
+
+### Service
+
+Responsável pela aplicação das regras de negócio e pela organização da lógica da aplicação.
+
+### Model
+
+Responsável pela representação das entidades e comunicação com o banco de dados através do Eloquent ORM.
+
+### Request
+
+Responsável pela validação dos dados recebidos nas requisições.
+
+### Migration
+
+Responsável pela criação e evolução da estrutura do banco de dados.
+
+---
+
+## 🔌 API
+
+A API utiliza os principais métodos HTTP para gerenciamento dos recursos:
+
+```text
+GET       → Consulta
+POST      → Cadastro
+PUT/PATCH → Atualização
+DELETE    → Exclusão
+```
+
+Os endpoints foram desenvolvidos e testados utilizando **Postman**.
+
+---
+
+## 🛠️ Tecnologias
+
+* **PHP**
+* **Laravel**
+* **MySQL**
+* **SQL**
+* **Eloquent ORM**
+* **Postman**
+* **DBeaver**
+* **Git/GitHub**
+
+---
+
+## 🚀 Como executar
+
+Clone o repositório e instale as dependências:
+
+```bash
+git clone URL_DO_REPOSITORIO
+cd projeto-sipa
+composer install
+```
+
+Configure o arquivo `.env` com as informações do banco de dados e execute:
+
+```bash
+php artisan migrate
+php artisan serve
+```
+
+A aplicação ficará disponível, por padrão, em:
+
+```text
+http://127.0.0.1:8000
+```
+
+---
+
+## 🔮 Próximos passos
+
+Entre as possibilidades de evolução do projeto estão:
+
+* Implementação de autenticação e controle de acesso;
+* Aprimoramento das regras de análise entre medicamentos e alergias;
+* Utilização de códigos ATC para classificação e comparação de medicamentos;
+* Implementação de testes automatizados;
+* Documentação da API utilizando Swagger/OpenAPI;
+* Implementação de auditoria das decisões realizadas no sistema;
+* Integração com bases externas de medicamentos.
+
+---
+
+## 👥 Equipe
+
+* **Camila Conceição**
+* **Marcos Vinicius**
+* **Giovana Gomes**
+* **Mayane Lins**
+
+---
+
+## 📚 Sobre o projeto
+
+Projeto acadêmico desenvolvido durante a formação em **Análise e Desenvolvimento de Sistemas**, com o objetivo de aplicar conhecimentos de desenvolvimento de software, banco de dados, APIs REST e modelagem de sistemas.
+
+O projeto também representa uma oportunidade de aprofundamento em **Análise de Sistemas, Análise de Requisitos e Gestão de TI**, explorando não apenas a implementação técnica, mas também a organização de requisitos, regras de negócio, dados e arquitetura da solução.
