@@ -7,8 +7,11 @@ Diferente de sistemas hospitalares fechados, o SIPA atua como suporte à decisã
 👥 Equipe
 
 Camila Conceição
+
 Marcos Vinicius
+
 Giovana Gomes
+
 Mayane Lins
 
 💡 O problema
